@@ -5,13 +5,12 @@
 
 using namespace std;
 
-
 const int width_sc = 1000;
-const int height_sc = 600;               
+const int height_sc = 600;
 const int Header_h = 50;
 const int start = Header_h;
 
-
+// BULLETS
 const int Bmax = 100;
 int bulletsX[Bmax] = { 0 };
 int bulletsY[Bmax] = { 0 };
@@ -19,24 +18,34 @@ bool bulletStatus[Bmax] = { false };
 int bullet_idx = 0;
 int bulletSpeed = 8;
 
-
+// ENEMIES
 const int Ecount = 15;
 struct Enemy {
     Rectangle rect;
-    int speed;
+    float speed;
     bool active;
     Color color;
     int scoreValue;
 };
-Enemy enemies[Ecount];
+Enemy enemies[Ecount]; // Array of enemies
+
+// BOSS
+Rectangle bossRect = { width_sc / 2 - 50, 100, 120, 60 };       //boss shape
+int bossHP = 50;
+float bossSpeed = 3;
+bool bossDirectionRight = true;
 
 
-int score = 0;                         //score and lives header type
-int lives = 3;
+const int BOSSBMAX = 10;
+Rectangle bossBullets[BOSSBMAX];                                 //boss fight bullets
+bool bossBulletActive[BOSSBMAX] = { false };
+float bossBulletSpeed = 5;
+
+
+int score = 0;
+int lives = 3;                                          //player variables
 int current_level = 1;
 int gState = 0;
-int activeEnemies = 6;
-
 
 int pos_x = width_sc / 2;
 int pos_y = height_sc - 60;
@@ -44,69 +53,62 @@ int width = 45;
 int height = 20;
 int playerSpeed = 10;
 
+void Shoot(int playerX, int playerY, int pWidth);
+void UpdateBullets();
+void ResetGame();
+void InitializeEnemies();
+void RespawnEnemy(int i);
+void UpdateBoss();
+void BossShoot();
+void UpdateBossBullets();
 
-
-void Shoot(int playerX, int playerY, int pWidth);       // Bullets Logic
-void UpdateBullets();                                                   // Bullets Logic
-void ResetGame();                       // Reset Game
-void InitializeEnemies();                            // Initialize Enemies
-void RespawnEnemy(int i);                                                 // Respawn Enemy hwen killed
-
-
-// Bullets Logic
-void Shoot(int playerX, int playerY, int Width)
-{
+void Shoot(int playerX, int playerY, int Width) {
     bulletsX[bullet_idx] = playerX + Width / 2;
     bulletsY[bullet_idx] = playerY;
-
     bulletStatus[bullet_idx] = true;
     bullet_idx++;
 
     if (bullet_idx >= Bmax)
     {
-		bullet_idx = 0;            // Reset to the first bullet slot if max is reached
+        bullet_idx = 0;                             //reset the bullets when greater than max or equal to it
     }
 }
 
-void UpdateBullets()
-{
-    for (int i = 0; i < Bmax; i++)
-    {
-        if (bulletStatus[i])
-        {
-            bulletsY[i] -= bulletSpeed;
+void UpdateBullets() {
+    for (int i = 0; i < Bmax; i++) {
+        if (bulletStatus[i]) {
+            bulletsY[i] -= bulletSpeed;                             //shooted in vertical direction
             if (bulletsY[i] < 0)
             {
-				bulletStatus[i] = false;      // Deactivate bullet if it goes off-screen
+                bulletStatus[i] = false;
             }
         }
     }
 }
-// Respawn enemy to new position whenever they got destroyed
-void RespawnEnemy(int i)
-{
-	enemies[i].rect.y = (int)start - enemies[i].rect.height - (int)GetRandomValue(0, 49);          // Random Y position above the screen
-	enemies[i].rect.x = (int)GetRandomValue(0, width_sc - (int)enemies[i].rect.width);          // Random X position
+
+
+void RespawnEnemy(int i) {
+    enemies[i].rect.y = start - enemies[i].rect.height - (rand()%500);
+    enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width);
 }
 
-void InitializeEnemies()
-{
-	srand(time(0));      // Seed for random position generation
+void InitializeEnemies() {
+    srand(time(0));       //seed 
+    int spawnset = 0;
 
-    int SameSpawn = 0;
+    for (int i = 0; i < Ecount; i++) {
 
-	for (int i = 0; i < activeEnemies; i++)       // Initialize only active enemies
-    {
-        enemies[i].rect.width = 30;
+        enemies[i].rect.width = 30;                     //enemies dimensions
         enemies[i].rect.height = 30;
         enemies[i].speed = 0.5 + (current_level * 0.5);
         enemies[i].active = true;
 
-		enemies[i].rect.x = (int)GetRandomValue(0, width_sc - (int)enemies[i].rect.width);              // Random X position
+        enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width + 1);
 
+		enemies[i].rect.y = Header_h - enemies[i].rect.height-(20+rand()%100);
+        enemies[i].rect.y -= spawnset;
 
-		enemies[i].rect.y = (int)start - (i*60);    // Staggered Y positions
-        SameSpawn += 100;       
+        spawnset+= 80;                                            
 
         if (i % 3 == 0) {
             enemies[i].color = RED;
@@ -123,10 +125,11 @@ void InitializeEnemies()
     }
 }
 
-void ResetGame()
-{
+
+
+void ResetGame() {
     score = 0;
-    lives = 3;
+    lives = 3;                                        //when gameover the variables reset
     current_level = 1;
     pos_x = width_sc / 2;
     pos_y = height_sc - 60;
@@ -137,45 +140,89 @@ void ResetGame()
     {
         bulletStatus[i] = false;
     }
+    bossHP = 50;
+    bossRect = { width_sc / 2 - 50, 100, 120, 60 };
+
     InitializeEnemies();
 }
 
+void UpdateBoss() {
+    if (bossDirectionRight) {
+        bossRect.x += bossSpeed;
+        if (bossRect.x + bossRect.width >= width_sc)
+        {
+            bossDirectionRight = false;
+        }
+    }
+    else {
+        bossRect.x -= bossSpeed;
+        if (bossRect.x <= 0)
+        {
+            bossDirectionRight = true;
+        }
+    }
 
-int main()
-{
+    if (GetRandomValue(0, 40) == 0)
+    {
+        BossShoot();
+    }
+}
+
+void BossShoot() {
+    for (int i = 0; i < BOSSBMAX; i++) {
+        if (!bossBulletActive[i]) {
+            bossBullets[i] = { bossRect.x + bossRect.width / 2 - 5, bossRect.y + bossRect.height, 10, 15 };
+            bossBulletActive[i] = true;
+            break;
+        }
+    }
+}
+
+void UpdateBossBullets() {
+    for (int i = 0; i < BOSSBMAX; i++) {
+        if (bossBulletActive[i]) {
+            bossBullets[i].y += bossBulletSpeed;
+
+            if (bossBullets[i].y > height_sc)
+                bossBulletActive[i] = false;
+
+            Rectangle playerRect = { pos_x, pos_y, width, height };
+
+            if (CheckCollisionRecs(playerRect, bossBullets[i])) {
+                lives--;
+                bossBulletActive[i] = false;
+            }
+        }
+    }
+}
+
+//main loop GUI
+int main() {
     InitWindow(width_sc, height_sc, "SPACE SHOOTER!");
     SetTargetFPS(60);
 
     InitializeEnemies();
-
     srand(time(0));
 
-    while (!WindowShouldClose())
-    {
-       float x = GetFrameTime();
+    while (!WindowShouldClose()) {
+        float x = GetFrameTime();        //frame rate
 
-        if (gState == 0)
-        {
-            if (IsKeyPressed(KEY_SPACE))
-            {
-                gState = 1;
-            }
+        if (gState == 0) {
+            if (IsKeyPressed(KEY_SPACE)) gState = 1;
         }
 
         if (lives <= 0)
         {
             gState = 2;
         }
-
-        if (IsKeyPressed(KEY_R) && (gState == 1 || gState == 2))
-        {
+        if (IsKeyPressed(KEY_R) && (gState == 1 || gState == 2||gState==3)) {
             ResetGame();
             gState = 1;
         }
 
-        if (gState == 1)
-        {
-            // Player Movement
+        if (gState == 1) {
+
+            // ------------ MOVEMENT ------------
             if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
             {
                 pos_x += playerSpeed;
@@ -184,75 +231,85 @@ int main()
             {
                 pos_x -= playerSpeed;
             }
-            if (pos_x < 0) {
+
+            if (pos_x < 0)
+            {
                 pos_x = 0;
             }
             if (pos_x > width_sc - width)
             {
                 pos_x = width_sc - width;
             }
-            // Shooting
+
+            
             if (IsKeyPressed(KEY_SPACE))
             {
                 Shoot(pos_x, pos_y, width);
             }
-
             UpdateBullets();
 
-            Rectangle playerRect = { (float)pos_x, (float)pos_y, (float)width, (float)height };
+            Rectangle playerRect = { pos_x, pos_y, width, height };
 
-            // Enemy Logic
-            for (int i = 0; i < activeEnemies; i++)
-            {
-                enemies[i].rect.y += enemies[i].speed * x * 60;
+            
+            if (current_level < 3) {
+                for (int i = 0; i < Ecount; i++) {
+                    enemies[i].rect.y += enemies[i].speed * x * 50;
 
-                if (enemies[i].rect.y > height_sc)
-                {
-                    lives--;
-                    RespawnEnemy(i);
-                }
+                    if (enemies[i].rect.y > height_sc) {
+                        lives--;
+                        RespawnEnemy(i);
+                    }
 
-                if (CheckCollisionRecs(playerRect, enemies[i].rect))
-                {
-                    lives--;
-                    RespawnEnemy(i);
-                    pos_x = width_sc / 2;
-                }
+                    if (CheckCollisionRecs(playerRect, enemies[i].rect)) {
+                        lives--;
+                        RespawnEnemy(i);
+                    }
 
-                // Bullet Collision
-                for (int b = 0; b < Bmax; b++)
-                {
-                    if (bulletStatus[b])
-                    {
-                        Rectangle bulletRect = { bulletsX[b] - 2, bulletsY[b] - 5, 5, 10 };
+                    for (int b = 0; b < Bmax; b++) {
+                        if (bulletStatus[b]) {
+                            Rectangle bulletRect = { bulletsX[b] - 2, bulletsY[b] - 5, 5, 10 };
 
-                        if (CheckCollisionRecs(bulletRect, enemies[i].rect))
-                        {
-                            score += enemies[i].scoreValue;
-                            bulletStatus[b] = false;
-                            RespawnEnemy(i);
-                            break;
+                            if (CheckCollisionRecs(bulletRect, enemies[i].rect)) {
+                                score += enemies[i].scoreValue;
+                                bulletStatus[b] = false;
+                                RespawnEnemy(i);
+                                break;
+                            }
                         }
+                    }
+                }
+
+                if (score >= current_level * 200) {
+                    current_level++;
+                    if (current_level == 3) {
+                        // prepare boss
                     }
                 }
             }
 
-            // Level Up
-            if (score >= current_level * 200)
-            {
-                current_level++;
+           
+            if (current_level == 3) {
+                UpdateBoss();                                //Boss Fight
+                UpdateBossBullets();
 
-                activeEnemies += 4;
-                if (activeEnemies > Ecount) activeEnemies = Ecount;
+                // Player bullets hit boss
+                for (int b = 0; b < Bmax; b++) {
+                    if (bulletStatus[b]) {
+                        Rectangle bRect = { bulletsX[b], bulletsY[b], 5, 10 };
+                        if (CheckCollisionRecs(bRect, bossRect)) {
+                            bossHP--;
+                            bulletStatus[b] = false;
+                        }
+                    }
+                }
 
-                for (int i = 0; i < activeEnemies; i++)
-                {
-                    enemies[i].speed += 0.5;
+                if (bossHP <= 0) {
+                    gState = 3; // WIN!
                 }
             }
         }
 
-        // ---------------------- DRAWING ----------------------
+        // ------------ DRAWING ------------
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -260,43 +317,62 @@ int main()
         DrawLine(0, Header_h, width_sc, Header_h, RAYWHITE);
 
         DrawText("SPACE SHOOTER", 10, 15, 20, RAYWHITE);
-        DrawText("LEVEL", width_sc / 4 + 50, 15, 20, LIGHTGRAY);
-        DrawText(TextFormat("%i", current_level), width_sc / 4 + 130, 15, 20, YELLOW);
-        DrawText("SCORE", width_sc / 2 + 100, 15, 20, LIGHTGRAY);
-        DrawText(TextFormat("%05i", score), width_sc / 2 + 180, 15, 20, WHITE);
-        DrawText("LIVES", width_sc - 150, 15, 20, LIGHTGRAY);
-        DrawText(TextFormat("%i", lives), width_sc - 70, 15, 20, RED);
+        DrawText("LEVEL", 250, 15, 20, LIGHTGRAY);
+        DrawText(TextFormat("%i", current_level), 330, 15, 20, YELLOW);
+        DrawText("SCORE", 500, 15, 20, LIGHTGRAY);
+        DrawText(TextFormat("%05i", score), 580, 15, 20, WHITE);
+        DrawText("LIVES", 820, 15, 20, LIGHTGRAY);
+        DrawText(TextFormat("%i", lives), 900, 15, 20, RED);
 
-        if (gState == 0)
-        {
-            DrawText("INSTRUCTIONS", width_sc / 2 - 200, height_sc / 2 - 100, 40, WHITE);
-            DrawText("Use A/D to move", width_sc / 2 - 200, height_sc / 2, 20, LIGHTGRAY);
-            DrawText("Press SPACE to Fire", width_sc / 2 - 200, height_sc / 2 + 30, 20, LIGHTGRAY);
-            DrawText("Hit Debris for Score (Colored = Higher Value)", width_sc / 2 - 200, height_sc / 2 + 60, 20, LIGHTGRAY);
-            DrawText("Press SPACE to Start Level 1", width_sc / 2 - 200, height_sc / 2 + 150, 30, GREEN);
+        if (gState == 0) {
+            DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, WHITE);
+            DrawText("Use A/D to move", 300, 300, 20, LIGHTGRAY);
+            DrawText("Press SPACE to Fire", 300, 330, 20, LIGHTGRAY);
+            DrawText("Hit Debris for Score", 300, 360, 20, LIGHTGRAY);
+			DrawText("Press R to Start", 300,390,20,LIGHTGRAY);
+            DrawText("Press ESC to Start", 300,420,20,LIGHTGRAY);
+
         }
-        else if (gState == 1)
-        {
-            DrawRectangle(pos_x, pos_y, width, height, GREEN);
 
-            for (int i = 0; i < Bmax; i++)
-            {
+        if (gState == 1) {
+
+     
+            DrawRectangle(pos_x, pos_y, width, height, WHITE);
+
+         
+            for (int i = 0; i < Bmax; i++) {
                 if (bulletStatus[i])
-                {
-                    DrawCircle(bulletsX[i], bulletsY[i], 3, RAYWHITE);
+                    DrawRectangle(bulletsX[i], bulletsY[i], 5, 10, YELLOW);
+            }
+
+            if (current_level < 3) {
+                for (int i = 0; i < Ecount; i++) {
+           
+                    if (enemies[i].rect.y >= Header_h + 5) {
+                        DrawRectangleRec(enemies[i].rect, enemies[i].color);
+                    }
+
                 }
             }
 
-            for (int i = 0; i < activeEnemies; i++)
-            {
-                DrawRectangleRec(enemies[i].rect, enemies[i].color);
+            if (current_level == 3) {
+                DrawRectangleRec(bossRect, DARKBLUE);
+
+                for (int i = 0; i < BOSSBMAX; i++) {
+                    if (bossBulletActive[i])
+                        DrawRectangleRec(bossBullets[i], RED);
+                }
+
+                DrawText(TextFormat("BOSS HP: %i", bossHP), width_sc / 2 - 50, 60, 20, RED);
             }
         }
-        else if (gState == 2)
-        {
+
+        if (gState == 2) {
             DrawText("GAME OVER", width_sc / 2 - 150, height_sc / 2 - 50, 60, RED);
-            DrawText(TextFormat("FINAL SCORE: %05i", score), width_sc / 2 - 150, height_sc / 2 + 50, 30, YELLOW);
-            DrawText("Press R to Restart", width_sc / 2 - 150, height_sc / 2 + 100, 30, WHITE);
+        }
+
+        if (gState == 3) {
+            DrawText("YOU WIN!", width_sc / 2 - 150, height_sc / 2 - 50, 60, GREEN);
         }
 
         EndDrawing();
