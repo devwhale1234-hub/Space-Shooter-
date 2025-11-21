@@ -5,23 +5,23 @@
 
 using namespace std;
 
-const int width_sc = 1000;
+const int width_sc = 1000;                      //screen dimensions
 const int height_sc = 600;
 const int Header_h = 50;
-const int start = Header_h;
+const int start = Header_h;                    //starting point for enemies                       
 
 
 // BULLETS
 const int Bmax = 100;
-int bulletsX[Bmax] = { 0 };
-int bulletsY[Bmax] = { 0 };
+int bulletsX[Bmax] = { 0 };                         //bullet positions
+int bulletsY[Bmax] = { 0 };                                           //bullet positions
 bool bulletStatus[Bmax] = { false };
-int bullet_idx = 0;
-int bulletSpeed = 8;
+int bullet_idx = 0;                                  //current bullet index
+int bulletSpeed = 8;                                 //bullet speed
 
 // ENEMIES
-const int Ecount = 15;
-struct Enemy {
+const int Ecount = 15;                                             //number of enemies
+struct Enemy {                                                     //variables for enemies
     Rectangle rect;
     float speed;
     bool active;
@@ -33,8 +33,8 @@ Enemy enemies[Ecount]; // Array of enemies
 // BOSS
 Rectangle bossRect = { width_sc / 2 - 50, 100, 120, 60 };       //boss shape
 int bossHP = 50;
-float bossSpeed = 3;
-bool bossDirectionRight = true;
+float bossSpeed = 5;                                              //boss speed
+bool bossDirectionRight = true;                         //boss movement direction
 
 
 const int BOSSBMAX = 10;
@@ -54,21 +54,21 @@ int width = 45;
 int height = 20;
 int playerSpeed = 8;
 
-void Shoot(int playerX, int playerY, int pWidth);
-void UpdateBullets();
-void ResetGame();
-void InitializeEnemies();
-void RespawnEnemy(int i);
-void UpdateBoss();
-void BossShoot();
-void UpdateBossBullets();
+void Shoot(int playerX, int playerY, int pWidth);         //function prototypes
+void UpdateBullets();                                      //update bullets
+void ResetGame();                                         //reset game variables
+void InitializeEnemies();                                //initialize enemies
+void RespawnEnemy(int i);                                //respawn enemy when dead
+void UpdateBoss();                                       //update boss position
+void BossShoot();                                        //boss shooting
+void UpdateBossBullets();                               //boss bullets updated according to position
 
 void Shoot(int playerX, int playerY, int Width) {
-    bulletsX[bullet_idx] = playerX + Width / 2;
-    bulletsY[bullet_idx] = playerY;
+	bulletsX[bullet_idx] = playerX + Width / 2;                //position of bullet from center of player ship
+	bulletsY[bullet_idx] = playerY;                            //position of bullet at player ship
     bulletStatus[bullet_idx] = true;
     bullet_idx++;
-
+	//move to next bullet
     if (bullet_idx >= Bmax)
     {
         bullet_idx = 0;                                     //reset the bullets when greater than max or equal to it
@@ -89,39 +89,39 @@ void UpdateBullets() {
 
 
 void RespawnEnemy(int i) {
-    enemies[i].rect.y = start - enemies[i].rect.height - (rand() % 500);
-    enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width);
+	enemies[i].rect.y = start - enemies[i].rect.height - (rand() % 500);          //respawn above the screen but after some distance
+	enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width);            //random x position on grid
 }
 
 void InitializeEnemies() {
-    srand(time(0));        //seed 
-    int spawnset = 0;
+	srand(time(0));        //seed for random generator
+	int spawnset = 0;                   //to set distance between enemies
 
     for (int i = 0; i < Ecount; i++) {
 
         enemies[i].rect.width = 30;                     //enemies dimensions
         enemies[i].rect.height = 30;
-        enemies[i].speed = 0.5 + (current_level * 0.5);
+		enemies[i].speed = 0.25 + (current_level * 0.5);    //enemy speed increases with level increment
         enemies[i].active = true;
 
-        enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width + 1);
+		enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width + 1);     //random x position on screen
 
-        enemies[i].rect.y = Header_h - enemies[i].rect.height - (20 + rand() % 100);
-        enemies[i].rect.y -= spawnset;
+		enemies[i].rect.y = Header_h - enemies[i].rect.height - (20 + rand() % 100);                               //initial y position above the screen
+		enemies[i].rect.y -= spawnset;                  //set distance between enemies when initialized
 
-        spawnset += 80;
+		spawnset += 80;      //increase distance for next enemy by 80(optional how much to take)
 
         if (i % 3 == 0) {
             enemies[i].color = RED;
-            enemies[i].scoreValue = 30;
+			enemies[i].scoreValue = 30; //red enemies have more score
         }
         else if (i % 3 == 1) {
             enemies[i].color = BLUE;
-            enemies[i].scoreValue = 20;
+			enemies[i].scoreValue = 20;            //blue enemies have medium score
         }
         else {
             enemies[i].color = GREEN;
-            enemies[i].scoreValue = 10;
+			enemies[i].scoreValue = 10;        //green enemies have less score
         }
     }
 }
@@ -135,20 +135,20 @@ void ResetGame() {
     pos_x = width_sc / 2;
     pos_y = height_sc - 60;
 
-    bullet_idx = 0;
+	bullet_idx = 0;                                           //reset bullet index
 
     for (int i = 0; i < Bmax; i++)
     {
         bulletStatus[i] = false;
-    }
+	}                                                           //reset all bullets
     bossHP = 50;
-    bossRect = { width_sc / 2 - 50, 100, 120, 60 };
+	bossRect = { width_sc / 2 - 50, 100, 120, 60 };            //reset boss position
 
-    InitializeEnemies();
+	InitializeEnemies();                                      //reinitialize enemies
 }
 
-void UpdateBoss() {
-    if (bossDirectionRight) {
+void UpdateBoss() {                                                 
+	if (bossDirectionRight) {                                //move right
         bossRect.x += bossSpeed;
 		if (bossRect.x + bossRect.width >= width_sc)                  //boss direction when hits screen edge changes accordingly
         {
@@ -180,7 +180,7 @@ void BossShoot() {
 }
 
 void UpdateBossBullets() {
-    for (int i = 0; i < BOSSBMAX; i++) {
+	for (int i = 0; i < BOSSBMAX; i++) {      //update boss bullets
         if (bossBulletActive[i]) {
             bossBullets[i].y += bossBulletSpeed;
 
@@ -201,10 +201,11 @@ void UpdateBossBullets() {
 //main loop GUI
 int main() {
     InitWindow(width_sc, height_sc, "SPACE SHOOTER!");
+	InitAudioDevice();
     SetTargetFPS(60);
     Texture2D playerTexture = LoadTexture("assets/extra.png");
     Texture2D enemyTexture = LoadTexture("assets/red.png");
-    Texture2D enemy2Texture = LoadTexture("assets/yellow.png");
+	Texture2D enemy2Texture = LoadTexture("assets/yellow.png");                              //texture loading of player and enemies and boss
     Texture2D enemy3Texture = LoadTexture("assets/green.png");
 	Texture2D bossTexture = LoadTexture("assets/boss.png");
     InitializeEnemies();
@@ -230,7 +231,7 @@ int main() {
         }
 
         if (gState == 1) {
-
+			//program was crashing with conio.h and _kbhit so used raylib key functions
            
             if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))       /*char key;
                                                                   if(_kbhit)
@@ -328,7 +329,7 @@ int main() {
         DrawLine(0, Header_h, width_sc, Header_h, RAYWHITE);
 
         DrawText("SPACE SHOOTER", 10, 15, 20, RAYWHITE);
-        DrawText("LEVEL", 250, 15, 20, LIGHTGRAY);
+		DrawText("LEVEL", 250, 15, 20, LIGHTGRAY);                             //header information
         DrawText(TextFormat("%i", current_level), 330, 15, 20, YELLOW);
         DrawText("SCORE", 500, 15, 20, LIGHTGRAY);
         DrawText(TextFormat("%05i", score), 580, 15, 20, WHITE);
@@ -336,12 +337,12 @@ int main() {
         DrawText(TextFormat("%i", lives), 900, 15, 20, RED);
 
         if (gState == 0) {
-            DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, WHITE);
-            DrawText("Use A/D to move", 300, 300, 20, LIGHTGRAY);
-            DrawText("Press SPACE to Fire", 300, 330, 20, LIGHTGRAY);
-            DrawText("Hit Debris for Score", 300, 360, 20, LIGHTGRAY);
-            DrawText("Press R to Restart", 300, 390, 20, LIGHTGRAY);
-            DrawText("Press Space to Start", 300, 420, 20, LIGHTGRAY);
+            DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, RED);
+            DrawText("Use A/D to move", 300, 300, 20, GREEN);
+            DrawText("Press SPACE to Fire", 300, 330, 20, GREEN);
+            DrawText("Hit Debris for Score", 300, 360, 20, GREEN);
+            DrawText("Press R to Restart", 300, 390, 20, GREEN);
+            DrawText("Press Space to Start", 300, 420, 20, GREEN);
 
         }
 
@@ -400,17 +401,17 @@ int main() {
         }
 
         if (gState == 2) {
-            DrawText("GAME OVER!", width_sc / 2 - 150, height_sc / 2 - 50, 60, RED);
+			DrawText("GAME OVER!", width_sc / 2 - 150, height_sc / 2 - 50, 60, RED);         //game over condition
         }
 
         if (gState == 3) {
-            DrawText("YOU WIN!", width_sc / 2 - 150, height_sc / 2 - 50, 60, GREEN);
+			DrawText("YOU WIN!", width_sc / 2 - 150, height_sc / 2 - 50, 60, GREEN);    //win condition
         }
 
         EndDrawing();
     }
     UnloadTexture(playerTexture);
-    UnloadTexture(enemyTexture);
+	UnloadTexture(enemyTexture);                   //unload textures from memory
     UnloadTexture(enemy2Texture);
     UnloadTexture(enemy3Texture);
 	UnloadTexture(bossTexture);
