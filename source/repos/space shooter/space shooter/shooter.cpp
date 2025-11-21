@@ -150,13 +150,13 @@ void ResetGame() {
 void UpdateBoss() {
     if (bossDirectionRight) {
         bossRect.x += bossSpeed;
-        if (bossRect.x + bossRect.width >= width_sc)
+		if (bossRect.x + bossRect.width >= width_sc)                  //boss direction when hits screen edge changes accordingly
         {
             bossDirectionRight = false;
         }
     }
     else {
-        bossRect.x -= bossSpeed;
+		bossRect.x -= bossSpeed;                                               //move left
         if (bossRect.x <= 0)
         {
             bossDirectionRight = true;
@@ -165,14 +165,14 @@ void UpdateBoss() {
 
     if (rand() % 41 == 0)
     {
-        BossShoot();
+		BossShoot();                                                          //random shooting by boss
     }
 }
 
 void BossShoot() {
     for (int i = 0; i < BOSSBMAX; i++) {
         if (!bossBulletActive[i]) {
-            bossBullets[i] = { bossRect.x + bossRect.width / 2 - 5, bossRect.y + bossRect.height, 10, 15 };
+			bossBullets[i] = { bossRect.x + bossRect.width / 2 - 5, bossRect.y + bossRect.height, 10, 15 };       //boss bullet shape
             bossBulletActive[i] = true;
             break;
         }
@@ -187,9 +187,9 @@ void UpdateBossBullets() {
             if (bossBullets[i].y > height_sc)
                 bossBulletActive[i] = false;
 
-            Rectangle playerRect = { pos_x, pos_y, width, height };
+			Rectangle playerRect = { pos_x, pos_y, width, height };           //player rectangle for collision
 
-            if (CheckCollisionRecs(playerRect, bossBullets[i]))
+			if (CheckCollisionRecs(playerRect, bossBullets[i]))             //collision detection
             {
                 lives--;
                 bossBulletActive[i] = false;
@@ -231,8 +231,10 @@ int main() {
 
         if (gState == 1) {
 
-            // ------------ MOVEMENT ------------
-            if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
+           
+            if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))       /*char key;
+                                                                  if(_kbhit)
+                                                                  kbhit=_getch(); for movement */
             {
                 pos_x += playerSpeed;
             }
@@ -261,8 +263,8 @@ int main() {
 
 
             if (current_level < 3) {
-                for (int i = 0; i < Ecount; i++) {
-                    enemies[i].rect.y += enemies[i].speed * x * 55;
+				for (int i = 0; i < Ecount; i++) {                             //update enemies
+					enemies[i].rect.y += enemies[i].speed * x * 55;              //enemy speed
 
                     if (enemies[i].rect.y > height_sc) {
                         lives--;
@@ -274,13 +276,13 @@ int main() {
                         RespawnEnemy(i);
                     }
 
-                    for (int b = 0; b < Bmax; b++) {
-                        if (bulletStatus[b]) {
-                            Rectangle bulletRect = { bulletsX[b] - 2, bulletsY[b] - 5, 5, 10 };
+					for (int j = 0; j < Bmax; j++) {                //player bullets hit enemies
+                        if (bulletStatus[j]) {
+							Rectangle bulletRect = { bulletsX[j] - 2, bulletsY[j] - 5, 5, 10 };   //bullet shape
 
                             if (CheckCollisionRecs(bulletRect, enemies[i].rect)) {
                                 score += enemies[i].scoreValue;
-                                bulletStatus[b] = false;
+                                bulletStatus[i] = false;
                                 RespawnEnemy(i);
                                 break;
                             }
@@ -288,10 +290,10 @@ int main() {
                     }
                 }
 
-                if (score >= current_level * 400) {
+				if (score >= current_level * 400) {                         //level up condition
                     current_level++;
                     if (current_level == 3) {
-                        // prepare boss
+						                      //boss level
                     }
                 }
             }
@@ -305,10 +307,10 @@ int main() {
                 for (int b = 0; b < Bmax; b++) {
                     if (bulletStatus[b]) {
                         Rectangle bRect = { (float)bulletsX[b], (float)bulletsY[b], 5, 10 };
-                        if (CheckCollisionRecs(bRect, bossRect)) {
+						if (CheckCollisionRecs(bRect, bossRect)) {       //collision detection
                             bossHP--;
-                            bulletStatus[b] = false;
-                        }
+							bulletStatus[b] = false;         //deactivate bullet
+                        }                                    
                     }
                 }
 
@@ -346,8 +348,8 @@ int main() {
         if (gState == 1) {
 
             // DRAW PLAYER
-            Rectangle playerSrcRec = { 0.0f, 0.0f, (float)playerTexture.width, (float)playerTexture.height };
-            Rectangle playerDestRec = { (float)pos_x, (float)pos_y, (float)width, (float)height };
+			Rectangle playerSrcRec = { 0.0f, 0.0f, (float)playerTexture.width, (float)playerTexture.height }; //dimensions of player ship
+			Rectangle playerDestRec = { (float)pos_x, (float)pos_y, (float)width, (float)height };                                       //destination rectangle for player ship
             DrawTexturePro(playerTexture, playerSrcRec, playerDestRec, { 0,0 }, 0.0f, WHITE);  //draw player ship
 
             // DRAW BULLETS
@@ -376,8 +378,8 @@ int main() {
                             enemyTex = &enemy3Texture; // Green enemy
 
                        
-                        Rectangle enemySrcRec = { 0.0f, 0.0f, (float)enemyTex->width, (float)enemyTex->height };
-                        DrawTexturePro(*enemyTex, enemySrcRec, enemies[i].rect, { 0,0 }, 0.0f, WHITE);
+						Rectangle enemySrcRec = { 0.0f, 0.0f, (float)enemyTex->width, (float)enemyTex->height };       //enemy dimensions
+						DrawTexturePro(*enemyTex, enemySrcRec, enemies[i].rect, { 0,0 }, 0.0f, WHITE);     //draw enemies
                      
                     }
 
@@ -385,8 +387,8 @@ int main() {
             }
 
             if (current_level == 3) {
-				Rectangle bossSrcRec = { 0.0f, 0.0f, (float)bossTexture.width, (float)bossTexture.height };
-				DrawTexturePro(bossTexture, bossSrcRec, bossRect, { 0,0 }, 0.0f, WHITE);
+				Rectangle bossRec = { 0.0f, 0.0f, (float)bossTexture.width, (float)bossTexture.height };      //boss dimensions
+				DrawTexturePro(bossTexture, bossRec, bossRect, { 0,0 }, 0.0f, WHITE);                                          //draw boss
 
                 for (int i = 0; i < BOSSBMAX; i++) {
                     if (bossBulletActive[i])
