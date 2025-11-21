@@ -70,14 +70,14 @@ void Shoot(int playerX, int playerY, int Width) {
 
     if (bullet_idx >= Bmax)
     {
-        bullet_idx = 0;                             //reset the bullets when greater than max or equal to it
+        bullet_idx = 0;                                     //reset the bullets when greater than max or equal to it
     }
 }
 
 void UpdateBullets() {
     for (int i = 0; i < Bmax; i++) {
         if (bulletStatus[i]) {
-            bulletsY[i] -= bulletSpeed;                             //shooted in vertical direction
+            bulletsY[i] -= bulletSpeed;                                     //shooted in vertical direction
             if (bulletsY[i] < 0)
             {
                 bulletStatus[i] = false;
@@ -88,12 +88,12 @@ void UpdateBullets() {
 
 
 void RespawnEnemy(int i) {
-    enemies[i].rect.y = start - enemies[i].rect.height - (rand()%500);
+    enemies[i].rect.y = start - enemies[i].rect.height - (rand() % 500);
     enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width);
 }
 
 void InitializeEnemies() {
-    srand(time(0));       //seed 
+    srand(time(0));        //seed 
     int spawnset = 0;
 
     for (int i = 0; i < Ecount; i++) {
@@ -105,10 +105,10 @@ void InitializeEnemies() {
 
         enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width + 1);
 
-		enemies[i].rect.y = Header_h - enemies[i].rect.height-(20+rand()%100);
+        enemies[i].rect.y = Header_h - enemies[i].rect.height - (20 + rand() % 100);
         enemies[i].rect.y -= spawnset;
 
-        spawnset+= 80;                                            
+        spawnset += 80;
 
         if (i % 3 == 0) {
             enemies[i].color = RED;
@@ -129,7 +129,7 @@ void InitializeEnemies() {
 
 void ResetGame() {
     score = 0;
-    lives = 3;                                        //when gameover the variables reset
+    lives = 3;                                              //when gameover the variables reset
     current_level = 1;
     pos_x = width_sc / 2;
     pos_y = height_sc - 60;
@@ -162,7 +162,7 @@ void UpdateBoss() {
         }
     }
 
-    if (rand()%41 == 0)
+    if (rand() % 41 == 0)
     {
         BossShoot();
     }
@@ -188,7 +188,7 @@ void UpdateBossBullets() {
 
             Rectangle playerRect = { pos_x, pos_y, width, height };
 
-            if (CheckCollisionRecs(playerRect, bossBullets[i])) 
+            if (CheckCollisionRecs(playerRect, bossBullets[i]))
             {
                 lives--;
                 bossBulletActive[i] = false;
@@ -201,7 +201,11 @@ void UpdateBossBullets() {
 int main() {
     InitWindow(width_sc, height_sc, "SPACE SHOOTER!");
     SetTargetFPS(60);
-
+    Texture2D playerTexture = LoadTexture("assets/extra.png");
+    Texture2D enemyTexture = LoadTexture("assets/red.png");
+    Texture2D enemy2Texture = LoadTexture("assets/yellow.png");
+    Texture2D enemy3Texture = LoadTexture("assets/green.png");
+	Texture2D bossTexture = LoadTexture("assets/boss.png");
     InitializeEnemies();
     srand(time(0));
 
@@ -216,7 +220,7 @@ int main() {
         {
             gState = 2;
         }
-        if (IsKeyPressed(KEY_R) && (gState == 1 || gState == 2||gState==3)) {
+        if (IsKeyPressed(KEY_R) && (gState == 1 || gState == 2 || gState == 3)) {
             ResetGame();
             gState = 1;
         }
@@ -242,7 +246,7 @@ int main() {
                 pos_x = width_sc - width;
             }
 
-            
+
             if (IsKeyPressed(KEY_SPACE))
             {
                 Shoot(pos_x, pos_y, width);
@@ -251,7 +255,7 @@ int main() {
 
             Rectangle playerRect = { pos_x, pos_y, width, height };
 
-            
+
             if (current_level < 3) {
                 for (int i = 0; i < Ecount; i++) {
                     enemies[i].rect.y += enemies[i].speed * x * 50;
@@ -288,7 +292,7 @@ int main() {
                 }
             }
 
-           
+
             if (current_level == 3) {
                 UpdateBoss();                                //Boss Fight
                 UpdateBossBullets();
@@ -296,7 +300,7 @@ int main() {
                 // Player bullets hit boss
                 for (int b = 0; b < Bmax; b++) {
                     if (bulletStatus[b]) {
-                        Rectangle bRect = { bulletsX[b], bulletsY[b], 5, 10 };
+                        Rectangle bRect = { (float)bulletsX[b], (float)bulletsY[b], 5, 10 };
                         if (CheckCollisionRecs(bRect, bossRect)) {
                             bossHP--;
                             bulletStatus[b] = false;
@@ -310,7 +314,7 @@ int main() {
             }
         }
 
-      
+
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -326,21 +330,23 @@ int main() {
         DrawText(TextFormat("%i", lives), 900, 15, 20, RED);
 
         if (gState == 0) {
-			DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, WHITE);                 //First Screen Instructions
+            DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, WHITE);
             DrawText("Use A/D to move", 300, 300, 20, LIGHTGRAY);
             DrawText("Press SPACE to Fire", 300, 330, 20, LIGHTGRAY);
             DrawText("Hit Debris for Score", 300, 360, 20, LIGHTGRAY);
-			DrawText("Press R to Start", 300,390,20,LIGHTGRAY);
-            DrawText("Press ESC to Start", 300,420,20,LIGHTGRAY);
+            DrawText("Press R to Start", 300, 390, 20, LIGHTGRAY);
+            DrawText("Press ESC to Start", 300, 420, 20, LIGHTGRAY);
 
         }
 
         if (gState == 1) {
 
-     
-            DrawRectangle(pos_x, pos_y, width, height, WHITE);
+            // DRAW PLAYER
+            Rectangle playerSrcRec = { 0.0f, 0.0f, (float)playerTexture.width, (float)playerTexture.height };
+            Rectangle playerDestRec = { (float)pos_x, (float)pos_y, (float)width, (float)height };
+            DrawTexturePro(playerTexture, playerSrcRec, playerDestRec, { 0,0 }, 0.0f, WHITE);  //draw player ship
 
-         
+            // DRAW BULLETS
             for (int i = 0; i < Bmax; i++) {
                 if (bulletStatus[i])
                     DrawRectangle(bulletsX[i], bulletsY[i], 5, 10, YELLOW);
@@ -348,16 +354,35 @@ int main() {
 
             if (current_level < 3) {
                 for (int i = 0; i < Ecount; i++) {
-           
+
                     if (enemies[i].rect.y >= Header_h + 5) {
-                        DrawRectangleRec(enemies[i].rect, enemies[i].color);
+
+                        
+                        Texture2D* enemyTex = &enemy3Texture;
+
+                        if (i % 3 == 0)
+                        {
+                            enemyTex = &enemyTexture; // Red enemy
+                        }
+                        else if (i % 3 == 1)
+                        {
+                            enemyTex = &enemy2Texture; // Yellow enemy
+                        }
+                        else 
+                            enemyTex = &enemy3Texture; // Green enemy
+
+                       
+                        Rectangle enemySrcRec = { 0.0f, 0.0f, (float)enemyTex->width, (float)enemyTex->height };
+                        DrawTexturePro(*enemyTex, enemySrcRec, enemies[i].rect, { 0,0 }, 0.0f, WHITE);
+                     
                     }
 
                 }
             }
 
             if (current_level == 3) {
-                DrawRectangleRec(bossRect, DARKBLUE);
+				Rectangle bossSrcRec = { 0.0f, 0.0f, (float)bossTexture.width, (float)bossTexture.height };
+				DrawTexturePro(bossTexture, bossSrcRec, bossRect, { 0,0 }, 0.0f, WHITE);
 
                 for (int i = 0; i < BOSSBMAX; i++) {
                     if (bossBulletActive[i])
@@ -378,6 +403,12 @@ int main() {
 
         EndDrawing();
     }
+    UnloadTexture(playerTexture);
+    UnloadTexture(enemyTexture);
+    UnloadTexture(enemy2Texture);
+    UnloadTexture(enemy3Texture);
+	UnloadTexture(bossTexture);
+
 
     CloseWindow();
     return 0;
