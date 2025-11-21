@@ -33,7 +33,7 @@ Enemy enemies[Ecount]; // Array of enemies
 // BOSS
 Rectangle bossRect = { width_sc / 2 - 50, 100, 120, 60 };       //boss shape
 int bossHP = 50;
-float bossSpeed = 5;                                              //boss speed
+float bossSpeed = 8;                                              //boss speed
 bool bossDirectionRight = true;                         //boss movement direction
 
 
@@ -163,7 +163,7 @@ void UpdateBoss() {
         }
     }
 
-    if (rand() % 41 == 0)
+    if (rand() % 39 == 0)
     {
 		BossShoot();                                                          //random shooting by boss
     }
@@ -309,7 +309,7 @@ int main() {
                     if (bulletStatus[b]) {
                         Rectangle bRect = { (float)bulletsX[b], (float)bulletsY[b], 5, 10 };
 						if (CheckCollisionRecs(bRect, bossRect)) {       //collision detection
-                            bossHP--;
+                            bossHP-=3;
 							bulletStatus[b] = false;         //deactivate bullet
                         }                                    
                     }
