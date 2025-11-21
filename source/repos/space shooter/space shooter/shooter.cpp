@@ -10,6 +10,7 @@ const int height_sc = 600;
 const int Header_h = 50;
 const int start = Header_h;
 
+
 // BULLETS
 const int Bmax = 100;
 int bulletsX[Bmax] = { 0 };
@@ -51,7 +52,7 @@ int pos_x = width_sc / 2;
 int pos_y = height_sc - 60;
 int width = 45;
 int height = 20;
-int playerSpeed = 10;
+int playerSpeed = 8;
 
 void Shoot(int playerX, int playerY, int pWidth);
 void UpdateBullets();
@@ -213,7 +214,10 @@ int main() {
         float x = GetFrameTime();        //frame rate
 
         if (gState == 0) {
-            if (IsKeyPressed(KEY_SPACE)) gState = 1;
+            if (IsKeyPressed(KEY_SPACE))
+            {
+                gState = 1;
+            }
         }
 
         if (lives <= 0)
@@ -258,7 +262,7 @@ int main() {
 
             if (current_level < 3) {
                 for (int i = 0; i < Ecount; i++) {
-                    enemies[i].rect.y += enemies[i].speed * x * 50;
+                    enemies[i].rect.y += enemies[i].speed * x * 55;
 
                     if (enemies[i].rect.y > height_sc) {
                         lives--;
@@ -284,7 +288,7 @@ int main() {
                     }
                 }
 
-                if (score >= current_level * 200) {
+                if (score >= current_level * 400) {
                     current_level++;
                     if (current_level == 3) {
                         // prepare boss
@@ -334,8 +338,8 @@ int main() {
             DrawText("Use A/D to move", 300, 300, 20, LIGHTGRAY);
             DrawText("Press SPACE to Fire", 300, 330, 20, LIGHTGRAY);
             DrawText("Hit Debris for Score", 300, 360, 20, LIGHTGRAY);
-            DrawText("Press R to Start", 300, 390, 20, LIGHTGRAY);
-            DrawText("Press ESC to Start", 300, 420, 20, LIGHTGRAY);
+            DrawText("Press R to Restart", 300, 390, 20, LIGHTGRAY);
+            DrawText("Press Space to Start", 300, 420, 20, LIGHTGRAY);
 
         }
 
