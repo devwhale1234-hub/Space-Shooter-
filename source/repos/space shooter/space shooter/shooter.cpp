@@ -162,7 +162,7 @@ void UpdateBoss() {
         }
     }
 
-    if (GetRandomValue(0, 40) == 0)
+    if (rand()%41 == 0)
     {
         BossShoot();
     }
@@ -188,7 +188,8 @@ void UpdateBossBullets() {
 
             Rectangle playerRect = { pos_x, pos_y, width, height };
 
-            if (CheckCollisionRecs(playerRect, bossBullets[i])) {
+            if (CheckCollisionRecs(playerRect, bossBullets[i])) 
+            {
                 lives--;
                 bossBulletActive[i] = false;
             }
@@ -309,7 +310,7 @@ int main() {
             }
         }
 
-        // ------------ DRAWING ------------
+      
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -325,7 +326,7 @@ int main() {
         DrawText(TextFormat("%i", lives), 900, 15, 20, RED);
 
         if (gState == 0) {
-            DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, WHITE);
+			DrawText("INSTRUCTIONS", width_sc / 2 - 200, 150, 40, WHITE);                 //First Screen Instructions
             DrawText("Use A/D to move", 300, 300, 20, LIGHTGRAY);
             DrawText("Press SPACE to Fire", 300, 330, 20, LIGHTGRAY);
             DrawText("Hit Debris for Score", 300, 360, 20, LIGHTGRAY);
@@ -368,7 +369,7 @@ int main() {
         }
 
         if (gState == 2) {
-            DrawText("GAME OVER", width_sc / 2 - 150, height_sc / 2 - 50, 60, RED);
+            DrawText("GAME OVER!", width_sc / 2 - 150, height_sc / 2 - 50, 60, RED);
         }
 
         if (gState == 3) {
