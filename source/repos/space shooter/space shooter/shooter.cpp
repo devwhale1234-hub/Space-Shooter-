@@ -101,7 +101,7 @@ void InitializeEnemies() {
 
         enemies[i].rect.width = 30;                     //enemies dimensions
         enemies[i].rect.height = 30;
-		enemies[i].speed = 0.25 + (current_level * 0.5);    //enemy speed increases with level increment
+		enemies[i].speed = 0.5 + (current_level * 0.5);    //enemy speed increases with level increment
         enemies[i].active = true;
 
 		enemies[i].rect.x = rand() % (width_sc - (int)enemies[i].rect.width + 1);     //random x position on screen
@@ -163,7 +163,7 @@ void UpdateBoss() {
         }
     }
 
-    if (rand() % 39 == 0)
+    if (rand() % 40 == 0)
     {
 		BossShoot();                                                          //random shooting by boss
     }
@@ -291,7 +291,7 @@ int main() {
                     }
                 }
 
-				if (score >= current_level * 400) {                         //level up condition
+				if (score >= current_level * 300) {                         //level up condition
                     current_level++;
                     if (current_level == 3) {
 						                      //boss level
@@ -310,6 +310,7 @@ int main() {
                         Rectangle bRect = { (float)bulletsX[b], (float)bulletsY[b], 5, 10 };
 						if (CheckCollisionRecs(bRect, bossRect)) {       //collision detection
                             bossHP-=3;
+							score += 10;
 							bulletStatus[b] = false;         //deactivate bullet
                         }                                    
                     }
@@ -405,7 +406,7 @@ int main() {
         }
 
         if (gState == 3) {
-			DrawText("YOU WIN!", width_sc / 2 - 150, height_sc / 2 - 50, 60, GREEN);    //win condition
+			DrawText("YOU WIN!", width_sc / 2 - 150, height_sc / 2 - 50, 60, GREEN);//win conditio
         }
 
         EndDrawing();
