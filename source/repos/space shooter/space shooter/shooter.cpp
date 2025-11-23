@@ -1,7 +1,7 @@
 ﻿#include "raylib.h"
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <cstdlib>            
+ 
 
 using namespace std;
 
@@ -40,7 +40,7 @@ bool bossDirectionRight = true;                         //boss movement directio
 const int BOSSBMAX = 10;
 Rectangle bossBullets[BOSSBMAX];                                 //boss fight bullets
 bool bossBulletActive[BOSSBMAX] = { false };
-float bossBulletSpeed = 5;
+float bossBulletSpeed = 10;
 
 
 int score = 0;
@@ -54,6 +54,7 @@ int width = 45;
 int height = 20;
 int playerSpeed = 8;
 
+//all game functions
 void Shoot(int playerX, int playerY, int pWidth);         //function prototypes
 void UpdateBullets();                                      //update bullets
 void ResetGame();                                         //reset game variables
@@ -202,18 +203,22 @@ void UpdateBossBullets() {
 int main() {
     InitWindow(width_sc, height_sc, "SPACE SHOOTER!");
 	InitAudioDevice();
+
     SetTargetFPS(60);
+    Music backgroundMusic = LoadMusicStream("assets/game.wav.wav");
     Texture2D playerTexture = LoadTexture("assets/extra.png");
     Texture2D enemyTexture = LoadTexture("assets/red.png");
 	Texture2D enemy2Texture = LoadTexture("assets/yellow.png");                              //texture loading of player and enemies and boss
     Texture2D enemy3Texture = LoadTexture("assets/green.png");
 	Texture2D bossTexture = LoadTexture("assets/boss.png");
+    PlayMusicStream(backgroundMusic);
     InitializeEnemies();
     srand(time(0));
 
     while (!WindowShouldClose()) {
-        float x = GetFrameTime();        //frame rate
-
+        float x = GetFrameTime();  //frame rate
+        UpdateMusicStream(backgroundMusic);
+        
         if (gState == 0) {
             if (IsKeyPressed(KEY_SPACE))
             {
@@ -416,6 +421,10 @@ int main() {
     UnloadTexture(enemy2Texture);
     UnloadTexture(enemy3Texture);
 	UnloadTexture(bossTexture);
+    StopMusicStream(backgroundMusic);
+    UnloadMusicStream(backgroundMusic);
+
+    CloseAudioDevice();
 
 
     CloseWindow();
