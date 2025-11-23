@@ -58,7 +58,7 @@ A/D
 42
 
 Short Description:
-The Space Shooter game is a simple 2D shooting game designed to explain basic game development concepts such as player movement, collision detection, object respawning, scoring, and level ups. The player controls a spaceship and must shoot enemy objects while avoiding collisions. The game focuses on simplicity while still including engaging gameplay mechanics.We will also be uploading this project on github https://github.com/saadzeeshan5731-jpg/Space-Shooter-Project on thi link.
+The Space Shooter game is a simple 2D shooting game designed to explain basic game development concepts such as player movement, collision detection, object respawning, scoring, and level ups. The player controls a spaceship and must shoot enemy objects while avoiding collisions. The game focuses on simplicity while still including engaging gameplay mechanics.We will also be uploading this project on github https://github.com/saadzeeshan5731-jpg/Space-Shooter-Project,https://github.com/devwhale1234-hub/Space-Shooter- on this link.
 
 Work Division:
 Player Logic.
